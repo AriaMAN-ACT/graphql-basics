@@ -4,6 +4,8 @@ const typeDefs = `
     type Query {
         me: User!
         post: Post!
+        greeting(name: String): String!
+        add(num1: Float!, num2: Float!): Float!
     }
     
     type User {
@@ -38,6 +40,12 @@ const resolvers = {
                 body: 'I don\'t want to see you.',
                 published: false
             }
+        },
+        greeting(parentValue, {name}, req, info) {
+            return `Hello ${name ? ` ${name}` : ''}`;
+        },
+        add(parentValue, {num1, num2}, req, info) {
+            return num1 + num2;
         }
     }
 };
