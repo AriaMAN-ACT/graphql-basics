@@ -5,7 +5,8 @@ const typeDefs = `
         me: User!
         post: Post!
         greeting(name: String): String!
-        add(num1: Float!, num2: Float!): Float!
+        add(numbers: [Float!]!): Float!
+        grades: [Float!]!
     }
     
     type User {
@@ -44,8 +45,13 @@ const resolvers = {
         greeting(parentValue, {name}, req, info) {
             return `Hello ${name ? ` ${name}` : ''}`;
         },
-        add(parentValue, {num1, num2}, req, info) {
-            return num1 + num2;
+        add(parentValue, {numbers}, req, info) {
+            let sum = 0;
+            numbers.forEach(number => sum += number);
+            return sum;
+        },
+        grades() {
+            return [99, 89, 84];
         }
     }
 };
