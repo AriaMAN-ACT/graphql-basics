@@ -1,6 +1,8 @@
 import {GraphQLServer} from "graphql-yoga";
 import {uuid} from 'uuidv4';
 
+import {users, posts, comments} from "./db";
+
 Array.prototype.removeIf = function (callback) {
     let i = 0;
     while (i < this.length) {
@@ -12,112 +14,7 @@ Array.prototype.removeIf = function (callback) {
     }
 };
 
-const users = [
-    {
-        id: '1',
-        name: 'John',
-        email: 'john@email.com',
-        age: 16
-    },
-    {
-        id: '2',
-        name: 'Mark',
-        email: 'mark@email.com'
-    }
-];
 
-const posts = [
-    {
-        id: '1',
-        title: 'dummy post 1',
-        body: 'dummy post 1.',
-        published: true,
-        author: '2'
-    },
-    {
-        id: '2',
-        title: 'dummy post 2',
-        body: 'dummy post 2.',
-        published: false,
-        author: '1'
-    }
-];
-
-const comments = [
-    {
-        id: '1',
-        text: 'dummy text 1',
-        author: '2',
-        post: '1'
-    },
-    {
-        id: '2',
-        text: 'dummy text 2',
-        author: '1',
-        post: '2'
-    }
-];
-
-const typeDefs = `
-    type Query {
-        users(query: String): [User!]!
-        posts(query: String): [Post!]!
-        comments(query: String): [Comment!]!
-    }
-    
-    type Mutation {
-        createUser(data: CreateUserInput!): User!
-        deleteUser(id: ID!): User
-        createPost(data: CreatePostInput!): Post!
-        deletePost(id: ID!): Post
-        createComment(data: CreateCommentInput!): Comment!
-        deleteComment(id: ID!): Comment
-    }
-    
-    input CreateUserInput {
-        name: String!
-        email: String!
-        age Int
-    }
-    
-    input CreatePostInput {
-        title: String!
-        body: String!
-        published: Boolean!
-        author: ID!
-    }
-    
-    input CreateCommentInput {
-        text: String!
-        post: ID!
-        author: ID!
-    }
-    
-    type User {
-        id: ID!
-        name: String!
-        email: String!
-        age: Int
-        posts: [Post!]!
-        comments: [Comment!]!
-    }
-    
-    type Post {
-        id: ID!
-        title: String!
-        body: String!
-        published: Boolean!
-        author: User!
-        comments: [Comment!]!
-    }
-    
-    type Comment {
-        id: ID!
-        text: String!
-        post: Post!
-        author: User!
-    }
-`;
 
 const resolvers = {
     Query: {
@@ -257,7 +154,7 @@ const resolvers = {
 };
 
 const server = new GraphQLServer({
-    typeDefs,
+    typeDefs: './src/schema.graphql',
     resolvers
 });
 
