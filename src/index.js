@@ -1,5 +1,19 @@
 import {GraphQLServer} from "graphql-yoga";
 
+const users = [
+    {
+        id: '1',
+        name: 'John',
+        email: 'john@email.com',
+        age: 16
+    },
+    {
+        id: '2',
+        name: 'Mark',
+        email: 'mark@email.com'
+    }
+];
+
 const typeDefs = `
     type Query {
         users(query: String): [User!]!
@@ -18,25 +32,14 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
     }
 `;
 
 const resolvers = {
     Query: {
         users(parentValues, {query = ''}) {
-            return [
-                {
-                    id: '1',
-                    name: 'John',
-                    email: 'john@email.com',
-                    age: 16
-                },
-                {
-                    id: '2',
-                    name: 'Mark',
-                    email: 'mark@email.com'
-                }
-            ].filter(({name}) => name.toLowerCase().includes(query.toLowerCase()));
+            return users.filter(({name}) => name.toLowerCase().includes(query.toLowerCase()));
         },
         posts(parentValues, {query = ''}) {
             return [
@@ -44,15 +47,22 @@ const resolvers = {
                     id: '1',
                     title: 'dummy post 1',
                     body: 'dummy post 1.',
-                    published: true
+                    published: true,
+                    author: '2'
                 },
                 {
                     id: '2',
                     title: 'dummy post 2',
                     body: 'dummy post 2.',
-                    published: false
+                    published: false,
+                    author: '1'
                 }
             ].filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
+        }
+    },
+    Post: {
+        author({author}) {
+            return users.find(({id}) => id === author);
         }
     }
 };
