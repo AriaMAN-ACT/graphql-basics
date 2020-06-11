@@ -55,9 +55,28 @@ const typeDefs = `
     }
     
     type Mutation {
-        createUser(name: String!, email: String!, age: Int): User!
-        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-        createComment(text: String!, post: ID!, author: ID!): Comment!
+        createUser(data: CreateUserInput!): User!
+        createPost(data: CreatePostInput!): Post!
+        createComment(data: CreateCommentInput!): Comment!
+    }
+    
+    input CreateUserInput {
+        name: String!
+        email: String!
+        age Int
+    }
+    
+    input CreatePostInput {
+        title: String!
+        body: String!
+        published: Boolean!
+        author: ID!
+    }
+    
+    input CreateCommentInput {
+        text: String!
+        post: ID!
+        author: ID!
     }
     
     type User {
@@ -99,7 +118,7 @@ const resolvers = {
         }
     },
     Mutation: {
-        createUser(parentValue, {name, email, age}) {
+        createUser(parentValue, {data: {name, email, age}}) {
             if (user.some(({userEmail}) => userEmail === email)) {
                 throw new Error('Email taken.')
             }
@@ -115,7 +134,7 @@ const resolvers = {
 
             return user;
         },
-        createPost(parentValues, {title, body, published, author}) {
+        createPost(parentValues, {data: {title, body, published, author}}) {
             if (!users.some(({id}) => author === id)) {
                 throw new Error('User not found.');
             }
@@ -132,7 +151,7 @@ const resolvers = {
 
             return post;
         },
-        createComment(parentValues, {text, author, post}) {
+        createComment(parentValues, {data: {text, author, post}}) {
             if (!users.some(({id}) => id === author)) {
                 throw new Error('User not found.');
             }
