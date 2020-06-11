@@ -1,6 +1,17 @@
 import {GraphQLServer} from "graphql-yoga";
 import {uuid} from 'uuidv4';
 
+Array.prototype.removeIf = function (callback) {
+    let i = 0;
+    while (i < this.length) {
+        if (callback(this[i], i)) {
+            this.splice(i, 1);
+        } else {
+            ++i;
+        }
+    }
+};
+
 const users = [
     {
         id: '1',
@@ -56,6 +67,7 @@ const typeDefs = `
     
     type Mutation {
         createUser(data: CreateUserInput!): User!
+        deleteUser(id: ID!): User
         createPost(data: CreatePostInput!): Post!
         createComment(data: CreateCommentInput!): Comment!
     }
@@ -133,6 +145,28 @@ const resolvers = {
             users.push(user);
 
             return user;
+        },
+        deleteUser(parentValues, {id}) {
+            const userIndex = users.findIndex(({id: userId}) => userId === id);
+
+            if (userIndex === -1)
+                throw new Error('User not found');
+
+            users.splice(userIndex, 1);
+
+            let i = 0;
+            while (i < posts.length) {
+                if (posts[i].author === id) {
+                    posts.splice(i, 1);
+                    comments.removeIf(({post}) => post === posts[i].id);
+                } else {
+                    ++i;
+                }
+            }
+
+            comments.removeIf(({author}) => author === id);
+
+            return null;
         },
         createPost(parentValues, {data: {title, body, published, author}}) {
             if (!users.some(({id}) => author === id)) {
