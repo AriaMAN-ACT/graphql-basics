@@ -2,18 +2,15 @@ import {GraphQLServer} from "graphql-yoga";
 
 const typeDefs = `
     type Query {
-        me: User!
-        post: Post!
-        greeting(name: String): String!
-        add(numbers: [Float!]!): Float!
-        grades: [Float!]!
+        users(query: String): [User!]!
+        posts(query: String): [Post!]!
     }
     
     type User {
         id: ID!
         name: String
         email: String!
-        age: Int!
+        age: Int
     }
     
     type Post {
@@ -26,32 +23,36 @@ const typeDefs = `
 
 const resolvers = {
     Query: {
-        me() {
-            return {
-                id: 'dsfasdf',
-                name: 'Aria Azadi Pour',
-                email: 'aria.azadi.pour@protonmail.com',
-                age: 16
-            };
+        users(parentValues, {query = ''}) {
+            return [
+                {
+                    id: '1',
+                    name: 'John',
+                    email: 'john@email.com',
+                    age: 16
+                },
+                {
+                    id: '2',
+                    name: 'Mark',
+                    email: 'mark@email.com'
+                }
+            ].filter(({name}) => name.toLowerCase().includes(query.toLowerCase()));
         },
-        post() {
-            return {
-                id: 'fadsgasgdfbd',
-                title: 'Hello my darling',
-                body: 'I don\'t want to see you.',
-                published: false
-            }
-        },
-        greeting(parentValue, {name}, req, info) {
-            return `Hello ${name ? ` ${name}` : ''}`;
-        },
-        add(parentValue, {numbers}, req, info) {
-            let sum = 0;
-            numbers.forEach(number => sum += number);
-            return sum;
-        },
-        grades() {
-            return [99, 89, 84];
+        posts(parentValues, {query = ''}) {
+            return [
+                {
+                    id: '1',
+                    title: 'dummy post 1',
+                    body: 'dummy post 1.',
+                    published: true
+                },
+                {
+                    id: '2',
+                    title: 'dummy post 2',
+                    body: 'dummy post 2.',
+                    published: false
+                }
+            ].filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
         }
     }
 };
