@@ -31,10 +31,26 @@ const posts = [
     }
 ];
 
+const comments = [
+    {
+        id: '1',
+        text: 'dummy text 1',
+        author: '2',
+        post: '1'
+    },
+    {
+        id: '2',
+        text: 'dummy text 2',
+        author: '1',
+        post: '2'
+    }
+];
+
 const typeDefs = `
     type Query {
         users(query: String): [User!]!
         posts(query: String): [Post!]!
+        comments(query: String): [Comment!]!
     }
     
     type User {
@@ -43,6 +59,7 @@ const typeDefs = `
         email: String!
         age: Int
         posts: [Post!]!
+        comments: [Comment!]!
     }
     
     type Post {
@@ -50,6 +67,14 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
+        comments: [Comment!]!
+    }
+    
+    type Comment {
+        id: ID!
+        text: String!
+        post: Post!
         author: User!
     }
 `;
@@ -61,16 +86,33 @@ const resolvers = {
         },
         posts(parentValues, {query = ''}) {
             return posts.filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
+        },
+        comments(parentValues, {query = ''}) {
+            return comments.filter(({text}) => text.toLowerCase().includes(query.toLowerCase()));
         }
     },
     Post: {
         author({author}) {
             return users.find(({id}) => id === author);
+        },
+        comments({id}) {
+            return comments.filter(({post}) => post === id);
         }
     },
     User: {
         posts({id}) {
             return posts.filter(({author}) => id === author);
+        },
+        comments({id}) {
+            return comments.filter(({author}) => id === author);
+        }
+    },
+    Comment: {
+        post({post}) {
+            return posts.find(({id}) => id === post);
+        },
+        author({author}) {
+            return users.find(({id}) => id === author);
         }
     }
 };
