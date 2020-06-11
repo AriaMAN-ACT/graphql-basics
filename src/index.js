@@ -14,6 +14,23 @@ const users = [
     }
 ];
 
+const posts = [
+    {
+        id: '1',
+        title: 'dummy post 1',
+        body: 'dummy post 1.',
+        published: true,
+        author: '2'
+    },
+    {
+        id: '2',
+        title: 'dummy post 2',
+        body: 'dummy post 2.',
+        published: false,
+        author: '1'
+    }
+];
+
 const typeDefs = `
     type Query {
         users(query: String): [User!]!
@@ -25,6 +42,7 @@ const typeDefs = `
         name: String
         email: String!
         age: Int
+        posts: [Post!]!
     }
     
     type Post {
@@ -42,27 +60,17 @@ const resolvers = {
             return users.filter(({name}) => name.toLowerCase().includes(query.toLowerCase()));
         },
         posts(parentValues, {query = ''}) {
-            return [
-                {
-                    id: '1',
-                    title: 'dummy post 1',
-                    body: 'dummy post 1.',
-                    published: true,
-                    author: '2'
-                },
-                {
-                    id: '2',
-                    title: 'dummy post 2',
-                    body: 'dummy post 2.',
-                    published: false,
-                    author: '1'
-                }
-            ].filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
+            return posts.filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
         }
     },
     Post: {
         author({author}) {
             return users.find(({id}) => id === author);
+        }
+    },
+    User: {
+        posts({id}) {
+            return posts.filter(({author}) => id === author);
         }
     }
 };
