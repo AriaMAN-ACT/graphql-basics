@@ -81,6 +81,19 @@ export default {
 
         return null;
     },
+    updatePost(parentValues, {id, data}) {
+        const postIndex = posts.findIndex(({id: postId}) => postId === id);
+
+        if (postIndex === -1)
+            throw new Error('Post not found');
+
+        if (data.author && !users.find(user => user.id === data.author))
+            throw new Error('Author not found');
+
+        posts[postIndex] = {...posts[postIndex], ...data};
+
+        return posts[postIndex];
+    },
     createComment(parentValues, {data: {text, author, post}}) {
         if (!users.some(({id}) => id === author)) {
             throw new Error('User not found.');
@@ -110,5 +123,21 @@ export default {
         comments.splice(commentIndex, 1);
 
         return null;
+    },
+    updateComment(parentValues, {id, data}) {
+        const commentIndex = comments.findIndex(({id: commentId}) => commentId === id);
+
+        if (commentIndex === -1)
+            throw new Error('Comment not found');
+
+        if (data.author && !users.find(user => user.id === data.author))
+            throw new Error('Author not found');
+
+        if (data.post && !posts.find(post => post.id === data.post))
+            throw new Error('Post not found');
+
+        comments[commentIndex] = {...comments[commentIndex], ...data};
+
+        return comments[commentIndex];
     }
 };
