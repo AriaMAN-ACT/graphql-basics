@@ -3,9 +3,8 @@ import {comments, posts, users} from "../db";
 
 export default {
     createUser(parentValue, {data: {name, email, age}}) {
-        if (user.some(({userEmail}) => userEmail === email)) {
-            throw new Error('Email taken.')
-        }
+        if (users.some(({email: userEmail}) => userEmail === email))
+            throw new Error('Email taken.');
 
         const user = {
             id: uuid(),
@@ -39,6 +38,19 @@ export default {
         comments.removeIf(({author}) => author === id);
 
         return null;
+    },
+    updateUser(parentValues, {id, data}) {
+        const userIndex = users.findIndex(({id: userId}) => userId === id);
+
+        if (userIndex === -1)
+            throw new Error('User not found');
+
+        if (data.email && users.some(({email: userEmail}) => userEmail === data.email))
+            throw new Error('Email taken.');
+
+        users[userIndex] = {...users[userIndex], ...data};
+
+        return users[userIndex];
     },
     createPost(parentValues, {data: {title, body, published, author}}) {
         if (!users.some(({id}) => author === id)) {
